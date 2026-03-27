@@ -1120,20 +1120,35 @@ func TestTx_RollbackError(t *testing.T) {
 }
 
 func TestPrettyPrint(t *testing.T) {
-	b := make([]byte, 0)
-	w := bytes.NewBuffer(b)
-	l := &Log{
-		Type:     "Query",
-		Query:    "SELECT 2 + 2",
-		Duration: 12912,
+	tests := []struct {
+		desc     string
+		duration any
+		expected string
+	}{
+		{
+			desc:     "Duration as int",
+			duration: 12912,
+			expected: "\u001B[38;5;8mQuery                            \u001B[38;5;24mSQL   \u001B[0m    12912\u001B[38;5;8mµs\u001B[0m SELECT 2 + 2\n",
+		},
+		{
+			desc:     "Duration as string",
+			duration: "12912µs",
+			expected: "\u001B[38;5;8mQuery                            \u001B[38;5;24mSQL   \u001B[0m    12912\u001B[38;5;8mµs\u001B[0m SELECT 2 + 2\n",
+		},
 	}
 
-	l.PrettyPrint(w)
+	for _, tc := range tests {
+		l := &Log{
+			Type:     "Query",
+			Query:    "SELECT 2 + 2",
+			Duration: tc.duration,
+		}
 
-	assert.Equal(t,
-		"\u001B[38;5;8mQuery                            "+
-			"\u001B[38;5;24mSQL   \u001B[0m    12912\u001B[38;5;8mµs\u001B[0m SELECT 2 + 2\n",
-		w.String())
+		w := new(bytes.Buffer)
+		l.PrettyPrint(w)
+
+		assert.Equal(t, tc.expected, w.String(), tc.desc)
+	}
 }
 
 func TestClean(t *testing.T) {
