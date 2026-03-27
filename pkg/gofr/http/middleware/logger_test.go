@@ -193,22 +193,41 @@ func testUnknownPanicHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func TestRequestLog_PrettyPrint(t *testing.T) {
-	rl := &RequestLog{
-		TraceID:      "7e5c0e9a58839071d4d006dd1d0f4f3a",
-		SpanID:       "b19d9aa6323b29bb",
-		StartTime:    "2024-04-16T13:34:35.761893+05:30",
-		ResponseTime: 1432,
-		Method:       "GET",
-		UserAgent:    "",
-		IP:           "[::1]:59614",
-		URI:          "/test",
-		Response:     200,
+	tests := []struct {
+		desc         string
+		responseTime any
+		expected     string
+	}{
+		{
+			desc:         "ResponseTime as int",
+			responseTime: 1432,
+			expected:     "\u001B[38;5;8m7e5c0e9a58839071d4d006dd1d0f4f3a \u001B[38;5;34m200   \u001B[0m     1432\u001B[38;5;8mµs\u001B[0m GET /test \n",
+		},
+		{
+			desc:         "ResponseTime as string",
+			responseTime: "1432µs",
+			expected:     "\u001B[38;5;8m7e5c0e9a58839071d4d006dd1d0f4f3a \u001B[38;5;34m200   \u001B[0m     1432\u001B[38;5;8mµs\u001B[0m GET /test \n",
+		},
 	}
-	w := new(bytes.Buffer)
-	rl.PrettyPrint(w)
 
-	assert.Equal(t, "\u001B[38;5;8m7e5c0e9a58839071d4d006dd1d0f4f3a \u001B[38;5;34m200   \u001B[0m"+
-		"     1432\u001B[38;5;8mµs\u001B[0m GET /test \n", w.String())
+	for _, tc := range tests {
+		rl := &RequestLog{
+			TraceID:      "7e5c0e9a58839071d4d006dd1d0f4f3a",
+			SpanID:       "b19d9aa6323b29bb",
+			StartTime:    "2024-04-16T13:34:35.761893+05:30",
+			ResponseTime: tc.responseTime,
+			Method:       "GET",
+			UserAgent:    "",
+			IP:           "[::1]:59614",
+			URI:          "/test",
+			Response:     200,
+		}
+
+		w := new(bytes.Buffer)
+		rl.PrettyPrint(w)
+
+		assert.Equal(t, tc.expected, w.String(), tc.desc)
+	}
 }
 
 func Test_ColorForStatusCode(t *testing.T) {
