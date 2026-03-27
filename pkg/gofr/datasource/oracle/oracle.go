@@ -165,7 +165,7 @@ func (c *Client) Begin() (container.OracleTx, error) {
 
 	c.logger.Debug(&Log{
 		Type:     "Begin",
-		Duration: time.Since(start).Microseconds(),
+		Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 	})
 
 	return &oracleTx{tx: tx, logger: c.logger}, nil
@@ -179,7 +179,7 @@ func (t *oracleTx) ExecContext(ctx context.Context, query string, args ...any) e
 		t.logger.Debug(&Log{
 			Type:     "Tx-Exec",
 			Query:    query,
-			Duration: time.Since(start).Microseconds(),
+			Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 			Args:     args,
 		})
 	}
@@ -256,7 +256,7 @@ func (t *oracleTx) SelectContext(ctx context.Context, dest any, query string, ar
 		t.logger.Debug(&Log{
 			Type:     "Tx-Select",
 			Query:    query,
-			Duration: time.Since(start).Microseconds(),
+			Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 			Args:     args,
 		})
 	}
@@ -271,7 +271,7 @@ func (t *oracleTx) Commit() error {
 	if t.logger != nil {
 		t.logger.Debug(&Log{
 			Type:     "Tx-Commit",
-			Duration: time.Since(start).Microseconds(),
+			Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 		})
 
 		if err != nil {
@@ -289,7 +289,7 @@ func (t *oracleTx) Rollback() error {
 	if t.logger != nil {
 		t.logger.Debug(&Log{
 			Type:     "Tx-Rollback",
-			Duration: time.Since(start).Microseconds(),
+			Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 		})
 
 		if err != nil {
@@ -308,7 +308,7 @@ func (c *Client) sendOperationStats(start time.Time, methodType, query, method s
 	c.logger.Debug(&Log{
 		Type:     methodType,
 		Query:    query,
-		Duration: duration,
+		Duration: fmt.Sprintf("%dµs", duration),
 		Args:     args,
 	})
 

@@ -151,7 +151,7 @@ func (c *Client) sendOperationStats(start time.Time, methodType string, method s
 
 	c.logger.Debug(&Log{
 		Type:     methodType,
-		Duration: duration,
+		Duration: fmt.Sprintf("%dµs", duration),
 		Key:      strings.Join(kv, " "),
 	})
 

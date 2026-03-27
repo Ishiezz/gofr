@@ -12,7 +12,7 @@ type Logger interface {
 
 type Log struct {
 	Timestamp     time.Time `json:"timestamp"`
-	ResponseTime  int64     `json:"latency"`
+	ResponseTime  any       `json:"latency"`
 	CorrelationID string    `json:"correlationId"`
 	ResponseCode  int       `json:"responseCode"`
 	HTTPMethod    string    `json:"httpMethod"`
@@ -20,9 +20,20 @@ type Log struct {
 }
 
 func (l *Log) PrettyPrint(writer io.Writer) {
+	var responseTime int64
+
+	switch v := l.ResponseTime.(type) {
+	case int64:
+		responseTime = v
+	case int:
+		responseTime = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &responseTime)
+	}
+
 	fmt.Fprintf(writer, "\u001B[38;5;8m%s \u001B[38;5;%dm%-6d\u001B[0m %8d\u001B[38;5;8mµs\u001B[0m %s %s \n",
 		l.CorrelationID, colorForStatusCode(l.ResponseCode),
-		l.ResponseCode, l.ResponseTime, l.HTTPMethod, l.URI)
+		l.ResponseCode, responseTime, l.HTTPMethod, l.URI)
 }
 
 type ErrorLog struct {
@@ -31,9 +42,20 @@ type ErrorLog struct {
 }
 
 func (el *ErrorLog) PrettyPrint(writer io.Writer) {
+	var responseTime int64
+
+	switch v := el.ResponseTime.(type) {
+	case int64:
+		responseTime = v
+	case int:
+		responseTime = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &responseTime)
+	}
+
 	fmt.Fprintf(writer, "\u001B[38;5;8m%s \u001B[38;5;%dm%-6d\u001B[0m %8d\u001B[38;5;8mµs\u001B[0m %s %s \n",
 		el.CorrelationID, colorForStatusCode(el.ResponseCode),
-		el.ResponseCode, el.ResponseTime, el.HTTPMethod, el.URI)
+		el.ResponseCode, responseTime, el.HTTPMethod, el.URI)
 }
 
 func colorForStatusCode(status int) int {

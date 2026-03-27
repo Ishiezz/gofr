@@ -203,7 +203,7 @@ func (m *MQTT) Publish(ctx context.Context, topic string, message []byte) error 
 		Topic:         topic,
 		Host:          m.config.Hostname,
 		PubSubBackend: "MQTT",
-		Time:          t.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", t.Microseconds()),
 	})
 
 	m.metrics.IncrementCounter(ctx, "app_pubsub_publish_success_count", "topic", topic)

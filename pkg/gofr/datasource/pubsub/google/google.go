@@ -145,7 +145,7 @@ func (g *googleClient) Publish(ctx context.Context, topic string, message []byte
 		Topic:         topic,
 		Host:          g.ProjectID,
 		PubSubBackend: "GCP",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	g.metrics.IncrementCounter(ctx, "app_pubsub_publish_success_count", "topic", topic)
@@ -226,7 +226,7 @@ func (g *googleClient) Subscribe(ctx context.Context, topic string) (*pubsub.Mes
 			Topic:         topic,
 			Host:          g.Config.ProjectID,
 			PubSubBackend: "GCP",
-			Time:          end.Microseconds(),
+			Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 		})
 
 		return m, nil

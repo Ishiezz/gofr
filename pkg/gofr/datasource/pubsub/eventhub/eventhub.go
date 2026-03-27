@@ -307,7 +307,7 @@ func (c *Client) processEventsFromPartitionClient(ctx context.Context, topic str
 		Topic:         topic,
 		Host:          c.cfg.EventhubName + ":" + c.cfg.ConsumerGroup + ":" + partitionClient.PartitionID(),
 		PubSubBackend: "EVHUB",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	c.metrics.IncrementCounter(ctx, "app_pubsub_subscribe_success_count", "topic", topic, "subscription_name", partitionClient.PartitionID())
@@ -392,7 +392,7 @@ func (c *Client) tryReadFromPartition(ctx context.Context, partitionID, topic st
 		Topic:         topic,
 		Host:          c.cfg.EventhubName + ":" + c.cfg.ConsumerGroup + ":" + partitionID,
 		PubSubBackend: "EVHUB",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	c.metrics.IncrementCounter(ctx, "app_pubsub_subscribe_success_count", "topic", topic, "subscription_name", partitionID)
@@ -474,7 +474,7 @@ func (c *Client) Publish(ctx context.Context, topic string, message []byte) erro
 		Topic:         topic,
 		Host:          c.cfg.EventhubName,
 		PubSubBackend: "EVHUB",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	c.metrics.IncrementCounter(ctx, "app_pubsub_publish_success_count", "topic", topic)

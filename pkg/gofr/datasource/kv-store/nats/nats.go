@@ -171,7 +171,7 @@ func (c *Client) HealthCheck(ctx context.Context) (any, error) {
 			Type:     "HEALTH CHECK",
 			Key:      "health",
 			Value:    fmt.Sprintf("Connection failed for bucket '%s' at '%s'", c.configs.Bucket, c.configs.Server),
-			Duration: time.Since(start).Microseconds(),
+			Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 		})
 
 		if span != nil {
@@ -187,7 +187,7 @@ func (c *Client) HealthCheck(ctx context.Context) (any, error) {
 		Type:     "HEALTH CHECK",
 		Key:      "health",
 		Value:    fmt.Sprintf("Checking connection status for bucket '%s' at '%s'", c.configs.Bucket, c.configs.Server),
-		Duration: time.Since(start).Microseconds(),
+		Duration: fmt.Sprintf("%dµs", time.Since(start).Microseconds()),
 	})
 
 	if span != nil {
@@ -207,7 +207,7 @@ func (c *Client) sendOperationStats(start time.Time, methodType, method string, 
 
 	c.logger.Debug(&Log{
 		Type:     methodType,
-		Duration: duration.Microseconds(),
+		Duration: fmt.Sprintf("%dµs", duration.Microseconds()),
 		Key:      key,
 		Value:    c.configs.Bucket,
 	})

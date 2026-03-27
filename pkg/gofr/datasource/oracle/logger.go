@@ -17,12 +17,23 @@ type Logger interface {
 type Log struct {
 	Type     string `json:"type"`
 	Query    string `json:"query"`
-	Duration int64  `json:"duration"`
+	Duration any    `json:"duration"`
 	Args     []any  `json:"args,omitempty"`
 }
 
 func (l *Log) PrettyPrint(writer io.Writer) {
-	fmt.Fprintf(writer, "%-10s ORACLE %8dµs %s\n", l.Type, l.Duration, clean(l.Query))
+	var duration int64
+
+	switch v := l.Duration.(type) {
+	case int64:
+		duration = v
+	case int:
+		duration = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &duration)
+	}
+
+	fmt.Fprintf(writer, "%-10s ORACLE %8dµs %s\n", l.Type, duration, clean(l.Query))
 }
 
 func clean(query string) string {

@@ -28,13 +28,24 @@ type DB struct {
 type Log struct {
 	Type     string `json:"type"`
 	Query    string `json:"query"`
-	Duration int64  `json:"duration"`
+	Duration any    `json:"duration"`
 	Args     []any  `json:"args,omitempty"`
 }
 
 func (l *Log) PrettyPrint(writer io.Writer) {
+	var duration int64
+
+	switch v := l.Duration.(type) {
+	case int64:
+		duration = v
+	case int:
+		duration = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &duration)
+	}
+
 	fmt.Fprintf(writer, "\u001B[38;5;8m%-32s \u001B[38;5;24m%-6s\u001B[0m %8d\u001B[38;5;8mµs\u001B[0m %s\n",
-		l.Type, "SQL", l.Duration, clean(l.Query))
+		l.Type, "SQL", duration, clean(l.Query))
 }
 
 func clean(query string) string {
@@ -45,12 +56,12 @@ func clean(query string) string {
 }
 
 func (d *DB) sendOperationStats(start time.Time, queryType, query string, args ...any) {
-	duration := time.Since(start).Milliseconds()
+	duration := time.Since(start).Microseconds()
 
 	d.logger.Debug(&Log{
 		Type:     queryType,
 		Query:    query,
-		Duration: duration,
+		Duration: fmt.Sprintf("%dµs", duration),
 		Args:     args,
 	})
 
@@ -129,12 +140,12 @@ type Tx struct {
 }
 
 func (t *Tx) sendOperationStats(start time.Time, queryType, query string, args ...any) {
-	duration := time.Since(start).Milliseconds()
+	duration := time.Since(start).Microseconds()
 
 	t.logger.Debug(&Log{
 		Type:     queryType,
 		Query:    query,
-		Duration: duration,
+		Duration: fmt.Sprintf("%dµs", duration),
 		Args:     args,
 	})
 

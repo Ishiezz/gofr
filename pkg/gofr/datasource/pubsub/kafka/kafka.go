@@ -137,7 +137,7 @@ func (k *kafkaClient) Publish(ctx context.Context, topic string, message []byte)
 		Topic:         topic,
 		Host:          hostName,
 		PubSubBackend: "KAFKA",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	k.metrics.IncrementCounter(ctx, "app_pubsub_publish_success_count", "topic", topic)
@@ -234,7 +234,7 @@ func (k *kafkaClient) Subscribe(ctx context.Context, topic string) (*pubsub.Mess
 		Topic:         topic,
 		Host:          hostName,
 		PubSubBackend: "KAFKA",
-		Time:          end.Microseconds(),
+		Time:          fmt.Sprintf("%dµs", end.Microseconds()),
 	})
 
 	k.metrics.IncrementCounter(ctx, "app_pubsub_subscribe_success_count", "topic", topic, "consumer_group", k.config.ConsumerGroupID)

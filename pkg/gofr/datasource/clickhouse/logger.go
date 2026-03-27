@@ -17,13 +17,24 @@ type Logger interface {
 type Log struct {
 	Type     string `json:"type"`
 	Query    string `json:"query"`
-	Duration int64  `json:"duration"`
+	Duration any    `json:"duration"`
 	Args     []any  `json:"args,omitempty"`
 }
 
 func (l *Log) PrettyPrint(writer io.Writer) {
+	var duration int64
+
+	switch v := l.Duration.(type) {
+	case int64:
+		duration = v
+	case int:
+		duration = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &duration)
+	}
+
 	fmt.Fprintf(writer, "\u001B[38;5;8m%-32s \u001B[38;5;24m%-6s\u001B[0m %8d\u001B[38;5;8mµs\u001B[0m %s\n",
-		l.Type, "CHDB", l.Duration, clean(l.Query))
+		l.Type, "CHDB", duration, clean(l.Query))
 }
 
 // clean takes a string query as input and performs two operations to clean it up:

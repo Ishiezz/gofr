@@ -20,7 +20,7 @@ type Logger interface {
 
 type Log struct {
 	Type     string `json:"type"`
-	Duration int64  `json:"duration"`
+	Duration any    `json:"duration"`
 	Key      string `json:"key"`
 	Value    string `json:"value,omitempty"`
 }
@@ -41,8 +41,19 @@ func (l *Log) PrettyPrint(writer io.Writer) {
 		description = fmt.Sprintf("Deleting record from bucket '%s' with ID '%s'", l.Value, l.Key)
 	}
 
+	var duration int64
+
+	switch v := l.Duration.(type) {
+	case int64:
+		duration = v
+	case int:
+		duration = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &duration)
+	}
+
 	fmt.Fprintf(writer, "%-32s \u001B[38;5;162mNATS\u001B[0m   %8dμs \u001B[38;5;8m%s\u001B[0m\n",
 		l.Type,
-		l.Duration,
+		duration,
 		description)
 }

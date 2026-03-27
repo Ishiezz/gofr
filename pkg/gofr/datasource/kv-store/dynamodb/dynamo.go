@@ -265,7 +265,7 @@ func (c *Client) sendOperationsStats(start time.Time, methodType, method string,
 
 	c.logger.Debug(&Log{
 		Type:     methodType,
-		Duration: duration.Microseconds(),
+		Duration: fmt.Sprintf("%dµs", duration.Microseconds()),
 		Key:      key,
 		Value:    c.configs.Table,
 	})

@@ -183,7 +183,7 @@ func (h *httpService) createAndSendRequest(ctx context.Context, method string, p
 
 	respTime := time.Since(requestStart)
 
-	log.ResponseTime = respTime.Microseconds()
+	log.ResponseTime = fmt.Sprintf("%dµs", respTime.Microseconds())
 
 	if err != nil {
 		log.ResponseCode = http.StatusInternalServerError

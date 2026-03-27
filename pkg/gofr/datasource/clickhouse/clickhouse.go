@@ -180,7 +180,7 @@ func (c *Client) sendOperationStats(start time.Time, methodType, query string, m
 	c.logger.Debug(&Log{
 		Type:     methodType,
 		Query:    query,
-		Duration: duration,
+		Duration: fmt.Sprintf("%dµs", duration),
 		Args:     args,
 	})
 

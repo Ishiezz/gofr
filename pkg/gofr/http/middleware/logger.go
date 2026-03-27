@@ -52,7 +52,7 @@ type RequestLog struct {
 	TraceID      string `json:"trace_id,omitempty"`
 	SpanID       string `json:"span_id,omitempty"`
 	StartTime    string `json:"start_time,omitempty"`
-	ResponseTime int64  `json:"response_time,omitempty"`
+	ResponseTime any    `json:"response_time,omitempty"`
 	Method       string `json:"method,omitempty"`
 	UserAgent    string `json:"user_agent,omitempty"`
 	IP           string `json:"ip,omitempty"`
@@ -61,8 +61,19 @@ type RequestLog struct {
 }
 
 func (rl *RequestLog) PrettyPrint(writer io.Writer) {
+	var responseTime int64
+
+	switch v := rl.ResponseTime.(type) {
+	case int64:
+		responseTime = v
+	case int:
+		responseTime = int64(v)
+	case string:
+		fmt.Sscanf(v, "%d", &responseTime)
+	}
+
 	fmt.Fprintf(writer, "\u001B[38;5;8m%s \u001B[38;5;%dm%-6d\u001B[0m "+
-		"%8d\u001B[38;5;8mµs\u001B[0m %s %s \n", rl.TraceID, colorForStatusCode(rl.Response), rl.Response, rl.ResponseTime, rl.Method, rl.URI)
+		"%8d\u001B[38;5;8mµs\u001B[0m %s %s \n", rl.TraceID, colorForStatusCode(rl.Response), rl.Response, responseTime, rl.Method, rl.URI)
 }
 
 func colorForStatusCode(status int) int {
@@ -120,7 +131,7 @@ func handleRequestLog(srw *StatusResponseWriter, r *http.Request, start time.Tim
 		TraceID:      traceID,
 		SpanID:       spanID,
 		StartTime:    start.Format("2006-01-02T15:04:05.999999999-07:00"),
-		ResponseTime: time.Since(start).Nanoseconds() / 1000,
+		ResponseTime: fmt.Sprintf("%dµs", time.Since(start).Nanoseconds()/1000),
 		Method:       r.Method,
 		UserAgent:    r.UserAgent(),
 		IP:           getIPAddress(r),
